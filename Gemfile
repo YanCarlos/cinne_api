@@ -44,6 +44,10 @@ group :development do
   gem 'spring-watcher-listen', '~> 2.0.0'
 end
 
+group :test do
+  gem 'simplecov', require: false
+end
+
 gem 'active_model_serializers'
 gem 'rack-cors'
 

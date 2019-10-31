@@ -1,10 +1,10 @@
 require 'rails_helper'
 
 describe Api::V1::MoviesController do
-  describe '#index' do
-    let(:today) { Time.zone.today }
-    let(:yesterday) { Time.zone.today - 1 }
+  let(:api_key) { ENV['API_KEY'] }
+  let(:yesterday) { Time.zone.today - 1 }
 
+  describe '#index' do
     context 'when the api key is not valid' do
       before do
         request.headers.merge!({ 'Authorization': 'Token token=fake_api_key'})
@@ -18,7 +18,7 @@ describe Api::V1::MoviesController do
 
     context 'when the api key is valid' do
       before do
-        request.headers.merge!({ 'Authorization': 'Token token=api_key_test'})
+        request.headers.merge!({ 'Authorization': "Token token=#{api_key}"})
         get :index
       end
 
@@ -59,6 +59,147 @@ describe Api::V1::MoviesController do
           it 'returns empty' do
             expect(JSON.parse(response.body).count).to eq(0)
           end
+        end
+
+        context 'when the schedule movie has a schedules with 10 bookings' do
+          let!(:movie) { FactoryBot.create(:movie, schedules_attributes: [{ date: yesterday }])}
+          let!(:schedule) { movie.schedules.first }
+
+          before do
+            FactoryBot.create_list(:booking, 10, schedule: schedule)
+
+            get :index, params: { date: yesterday }
+          end
+
+          it 'returns schedule_id' do
+            expect(JSON.parse(response.body)[0]['schedule_id']).to eq(schedule.id)
+          end
+
+          it 'returns can_booking? in false' do
+            expect(JSON.parse(response.body)[0]['can_booking']).to eq(false)
+          end
+        end
+
+        context 'when  the schedule movie has a schedule with 5 bookings' do
+          let!(:movie) { FactoryBot.create(:movie, schedules_attributes: [{ date: yesterday }])}
+          let!(:schedule) { movie.schedules.first }
+
+          before do
+            FactoryBot.create_list(:booking, 5, schedule: schedule)
+
+            get :index, params: { date: yesterday }
+          end
+
+          it 'returns can_booking? in true' do
+            expect(JSON.parse(response.body)[0]['can_booking']).to eq(true)
+          end
+        end
+      end
+    end
+  end
+
+  describe '#create' do
+    context 'when the api key is not valid' do
+      before do
+        request.headers.merge!({ 'Authorization': 'Token token=fake_api_key'})
+        post :create, params: { }
+      end
+
+      it 'returns a unauthorized code' do
+        expect(response.status).to eq(401)
+      end
+    end
+
+    context 'when the api key is valid' do
+      before do
+        request.headers.merge!({ 'Authorization': "Token token=#{api_key}"})
+      end
+
+      context 'When the movie is correct' do
+        before do
+          post :create, params: {
+            movie: FactoryBot.attributes_for(:movie, :with_schedules)
+          }
+        end
+
+        it 'returns a code 200' do
+          expect(response.status).to eq(200)
+        end
+
+        it 'returns a message and the move data' do
+          expect(JSON.parse(response.body)['message']).to eq('Movie was created successfully.')
+          expect(JSON.parse(response.body)['data']).to eq(JSON.parse(Movie.last.to_json))
+        end
+      end
+
+      context 'when movie is not sent' do
+        before do
+          post :create, params: {}
+        end
+
+        it 'returns a bad request' do
+          expect(response.status).to eq(400)
+        end
+
+        it 'returns a error message' do
+          expect(JSON.parse(response.body)['message']).to eq('param is missing or the value is empty: movie')
+        end
+      end
+
+      context 'a schedule date is empty' do
+        before do
+          post :create, params: {
+            movie: FactoryBot.attributes_for(:movie, schedules_attributes: [ { date: '' }])
+          }
+        end
+
+        it 'returns a bad request' do
+          expect(response.status).to eq(400)
+        end
+
+        it 'returns a error message' do
+          expect(JSON.parse(response.body)['message']).to eq('Movie not saved')
+        end
+      end
+
+      context 'when an unpermitted param is sent' do
+        before do
+          post :create, params: {
+            movie: {
+              duration: '2h'
+            }
+          }
+        end
+
+        it 'returns a bad request code' do
+          expect(response.status).to eq(400)
+        end
+
+        it 'returns a error message' do
+          expect(JSON.parse(response.body)['message']).to eq('found unpermitted parameter: :duration')
+        end
+      end
+
+      context 'when movie has repeated schedules' do
+        before do
+          post :create, params: {
+            movie: FactoryBot.attributes_for(
+              :movie, 
+              schedules_attributes: [
+                { date: yesterday },
+                { date: yesterday }
+              ]
+            )
+          }
+        end
+
+        it 'returns a bad request' do
+          expect(response.status).to eq(400)
+        end
+
+        it 'returns a error message' do
+          expect(JSON.parse(response.body)['message']).to eq('Movie not saved')
+          expect(JSON.parse(response.body)['data']['schedules'][0]['message']).to eq("There is only one movie's show available per day")
         end
       end
     end
