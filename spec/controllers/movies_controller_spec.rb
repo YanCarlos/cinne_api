@@ -14,6 +14,10 @@ describe Api::V1::MoviesController do
       it 'returns a unauthorized code' do
         expect(response.status).to eq(401)
       end
+
+      it 'returns a error message' do
+        expect(JSON.parse(response.body)['message']).to include('El api_key no es valido')
+      end
     end
 
     context 'when the api key is valid' do

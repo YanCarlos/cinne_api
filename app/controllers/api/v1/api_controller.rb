@@ -21,7 +21,7 @@ module Api
 
       def render_unauthorized(realm = 'Application')
         self.headers['WWW-Authenticate'] = %(Token realm="#{realm}")
-        render json: 'Api token is not valid.', status: :unauthorized
+        render json: { message: 'El api_key no es valido' } , status: :unauthorized
       end
 
       private
