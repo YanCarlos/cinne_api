@@ -80,6 +80,6 @@ test:
 #
 production:
   <<: *default
-  database: cinne_api_production
-  username: cinne_api
-  password: <%= ENV['CINNE_API_DATABASE_PASSWORD'] %>
+  database: <%= ENV['DB_NAME'] %>
+  username: <%= ENV['DB_USERNAME'] %>
+  password: <%= ENV['DB_PASSWORD'] %>
