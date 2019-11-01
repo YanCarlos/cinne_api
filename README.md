@@ -17,16 +17,16 @@ Puede ver el demo en [aqui](https://yancarlos.github.io/cinne_frontend)
 
 **Corriendo la aplicación**
 		
-		```
-			$ git clone https://github.com/YanCarlos/cinne_api.git
-			$ cd cinne_api
-			$ bundle install
-			$ rails db:create db:migrate
-			$ rails s
-		```
+		
+	$ git clone https://github.com/YanCarlos/cinne_api.git
+	$ cd cinne_api
+	$ bundle install
+	$ rails db:create db:migrate
+	$ rails s
+		
    
 **Corriendo set de pruebas**
 		
-		```
-    	$ rspec spec
-		```
+		
+	$ rspec spec
+		
