@@ -1,5 +1,5 @@
 class BookingSerializer < ActiveModel::Serializer
-  attributes :identification, :name, :phone, :email, :movie_name, :schedule
+  attributes :id, :identification, :name, :phone, :email, :movie_name, :schedule
 
   def movie_name
     object.schedule.movie_name

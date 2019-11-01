@@ -2,10 +2,10 @@ class Movie < ApplicationRecord
   has_many :schedules, dependent: :destroy
   accepts_nested_attributes_for :schedules
 
-  validates_presence_of :name
-  validates_presence_of :description
-  validates_presence_of :image_url
-  validates_presence_of :schedules
+  validates_presence_of :name, message: 'El nombre no puede estar en blanco.'
+  validates_presence_of :description, message: 'La descripción no puede estar en blanco.'
+  validates_presence_of :image_url, message: 'La url de la imagen no puede estar en blanco.'
+  validates_presence_of :schedules, message: 'Las fechas de las funciones son necesarias.'
 
   validate :schedules_valid?
 
@@ -16,8 +16,8 @@ class Movie < ApplicationRecord
   private
 
   def schedules_valid?
-    errors.add(:schedules, :blank, message: 'cannot be blank') if is_any_date_empty?
-    errors.add(:schedules, message: "There is only one movie's show available per day") if has_repeated_schedule?
+    errors.add(:schedule_date, 'Ninguna fecha puede estar en blanco.') if is_any_date_empty?
+    errors.add(:schedule, 'Solo hay una funcion disponible al dia por pelicula') if has_repeated_schedule?
   end
 
   def is_any_date_empty?

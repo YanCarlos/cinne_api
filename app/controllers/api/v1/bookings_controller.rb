@@ -2,9 +2,10 @@ module Api
   module V1
     class BookingsController < ApiController
       before_action :set_schedule, only: :create
+      before_action :set_date, only: :index
 
       def index
-        render json: Booking.with_schedule_and_movies
+        render json: Booking.scheduled_on(@date)
       end
 
       def create
@@ -16,8 +17,7 @@ module Api
           }, status: :ok
         else
           render json: { 
-            message: @booking.errors,
-            data: @booking
+            message: @booking.errors.messages,
           }, status: :bad_request
         end
       end
@@ -37,8 +37,12 @@ module Api
         begin
           @schedule = Schedule.find(params[:id])
         rescue ActiveRecord::RecordNotFound => e
-          render json: { message: e.message }, status: :not_found
+          render json: { message: { 'not_found': 'Esa función de la pelicula no existe' }}, status: :not_found
         end
+      end
+
+      def set_date
+        @date = params[:date] || Time.zone.today
       end
     end
   end

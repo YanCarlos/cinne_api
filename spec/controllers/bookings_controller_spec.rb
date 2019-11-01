@@ -87,6 +87,10 @@ describe Api::V1::BookingsController do
         it 'returns a not_found status' do
           expect(response.status).to eq(404)
         end
+
+        it 'returns a not_found message' do
+          expect(JSON.parse(response.body)['message']['not_found']).to include('Esa función de la pelicula no existe')
+        end
       end
 
       context 'when the schedules has 10 bookings' do
@@ -104,7 +108,7 @@ describe Api::V1::BookingsController do
         end
 
         it 'returns an error message' do
-          expect(JSON.parse(response.body)['message']['booking'][0]).to eq("The movie's room is full.")
+          expect(JSON.parse(response.body)['message']['booking'][0]).to include('No hay cupos disponibles para esta función.')
         end
       end
     end

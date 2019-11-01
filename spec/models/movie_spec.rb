@@ -4,10 +4,10 @@ describe Movie do
   it { have_many :schedules }
   it{ should accept_nested_attributes_for :schedules }
 
-  it { should validate_presence_of(:name) }
-  it { should validate_presence_of(:description) }
-  it { should validate_presence_of(:image_url) }
-  it { should validate_presence_of(:schedules) }
+  it { should validate_presence_of(:name).with_message('El nombre no puede estar en blanco.')  }
+  it { should validate_presence_of(:description).with_message('La descripción no puede estar en blanco.') }
+  it { should validate_presence_of(:image_url).with_message('La url de la imagen no puede estar en blanco.') }
+  it { should validate_presence_of(:schedules).with_message('Las fechas de las funciones son necesarias.') }
 
   describe 'schedules_valid?' do
     let(:movie) {

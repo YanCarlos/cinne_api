@@ -158,7 +158,7 @@ describe Api::V1::MoviesController do
         end
 
         it 'returns a error message' do
-          expect(JSON.parse(response.body)['message']).to eq('Movie not saved')
+          expect(JSON.parse(response.body)['message']['schedule_date']).to include('Ninguna fecha puede estar en blanco.')
         end
       end
 
@@ -198,8 +198,7 @@ describe Api::V1::MoviesController do
         end
 
         it 'returns a error message' do
-          expect(JSON.parse(response.body)['message']).to eq('Movie not saved')
-          expect(JSON.parse(response.body)['data']['schedules'][0]['message']).to eq("There is only one movie's show available per day")
+          expect(JSON.parse(response.body)['message']['schedule']).to include('Solo hay una funcion disponible al dia por pelicula')
         end
       end
     end

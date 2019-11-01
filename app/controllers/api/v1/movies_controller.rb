@@ -16,8 +16,7 @@ module Api
           }, status: :ok
         else
           render json: { 
-            message: 'Movie not saved',
-            data: @movie.errors
+            message: @movie.errors.messages,
           }, status: :bad_request
         end
       end
